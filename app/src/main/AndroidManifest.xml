@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.attribution">
-    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+    !--声明SD卡读写权限-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" /><!--手机通话状态权限-->
     <uses-permission android:name="android.permission.READ_CALL_LOG" /><!--获取来电号码权限-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>

@@ -10,6 +10,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +23,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.File;
@@ -38,45 +42,54 @@ public class MainActivity extends AppCompatActivity {
     private List<Attribution> list;
     Attribution a1,a2,a3,a4,a5,a6,a7,a8,a9,a10;
     private  MyReceiver myReceiver;
+//    MyHelper helper;
     public MainActivity(){
-         list=new ArrayList<Attribution>();
-         a1=new Attribution(1,"张三","0311-181","0311","河北省石家庄");
-         a2=new Attribution(2,"李四","0381-181","0381","河北省衡水");
-         a3=new Attribution(3,"王五","0351-181","0351","山西省太原市");
-         a4=new Attribution(4,"赵六","0419-181","0419","辽宁省辽阳市");
-         a5=new Attribution(5,"田七","0421-181","0421","辽宁省朝阳市");
-         a6=new Attribution(6,"麻二","0571-181","0571","浙江省杭州市");
-         a7=new Attribution(7,"顺一","0579-181","0579","浙江省义乌市");
-         a8=new Attribution(8,"就零","0791 -181","0791 ","江西省南昌市");
-         a9=new Attribution(9,"赫九","0794-181","0794","江西省抚州市");
-         a10=new Attribution(10,"何二","0795-181","0795","江西宜春");
-         list.add(a1);
-         list.add(a2);
-         list.add(a3);
-         list.add(a4);
-         list.add(a5);
-         list.add(a6);
-         list.add(a7);
-         list.add(a8);
-         list.add(a9);
-         list.add(a10);
+
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.layout);
         requestDrawOverLays();
+//        final MyHelper myHelper=new MyHelper(this);
         ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.PROCESS_OUTGOING_CALLS, Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_CALL_LOG,Manifest.permission.RECEIVE_BOOT_COMPLETED},1);
+
+    }
+
+    public void insert(View view){
+        Myhelper helper=new Myhelper(MainActivity.this);
+        SQLiteDatabase db=helper.getWritableDatabase();
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0311","河北省石家庄"});
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0381","河北省衡水"});
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0351","山西省太原市"});
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0419","辽宁省辽阳市"});
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0421","辽宁省朝阳市"});
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0571","浙江省杭州市"});
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0579","浙江省义乌市"});
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0791","江西省南昌市"});
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0794","江西省抚州市"});
+        db.execSQL("insert into Attribution(areaCode,address)values(?,?)",new Object[]{"0795","江西宜春"});
+        Toast.makeText(MainActivity.this, "添加完成", Toast.LENGTH_SHORT).show();
+        db.close();
     }
     //获取归属地
     public String getAddress(String number){
         String address=null;
-        for (int i = 0; i <list.size() ; i++) {
-            if(number.substring(0,4).equals(list.get(i).getAreaCode())){
-                Log.e("info",number.substring(0,4));
-                address=list.get(i).getAddress();
-            }
+        String area=number.substring(0,4);
+        Myhelper helper=new Myhelper(MainActivity.this);
+        //获取可读SQLiteDatabase对象
+        SQLiteDatabase db=helper.getWritableDatabase();
+        Cursor cursor=db.query("attribution",null,"areaCode=?",new String[]{area},null,null,null);
+        if (cursor.getCount()!=0 ){
+          while(cursor.moveToNext()){
+              String id=cursor.getString(0);
+              String areaCode=cursor.getString(1);
+              address=cursor.getString(2);
+          }
         }
+        cursor.close();
+        db.close();
         return address;
     }
     //判断是否开启悬浮窗口权限,没有则跳转到权限页面去开启
